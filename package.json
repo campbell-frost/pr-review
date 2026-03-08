@@ -1,0 +1,31 @@
+{
+  "name": "pr-review",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "review": "tsx src/index.ts",
+    "review:local": "node --env-file=.env --import tsx/esm src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@octokit/rest": "^22.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.37",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
