@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { z } from "zod";
 import type { Config } from "./config.js";
 import { ReviewError } from "./errors.js";
 import type { ILogger } from "./logger.js";
@@ -31,11 +32,23 @@ Rules:
 - If there are no inline comments, return an empty array for comments.
 - Output raw JSON only — no markdown fences, no extra text.`;
 
+const ReviewResultSchema = z.object({
+  summary: z.string(),
+  verdict: z.enum(["APPROVE", "COMMENT", "REQUEST_CHANGES"]).catch("COMMENT"),
+  comments: z.array(
+    z.object({
+      path: z.string(),
+      line: z.number(),
+      body: z.string(),
+    }),
+  ),
+});
+
 export class PRReviewer {
   private readonly client: Anthropic;
 
   constructor(
-    private readonly config: Config,
+    config: Config,
     private readonly logger: ILogger,
   ) {
     this.client = new Anthropic({ apiKey: config.anthropicApiKey });
@@ -91,14 +104,14 @@ ${diff}`;
       throw new ReviewError("Failed to parse Claude response as JSON", raw);
     }
 
-    const result = parsed as ReviewResult;
-
-    const validVerdicts = ["APPROVE", "COMMENT", "REQUEST_CHANGES"] as const;
-    if (!validVerdicts.includes(result.verdict)) {
-      this.logger.warn(`Unexpected verdict "${result.verdict}", defaulting to COMMENT`);
-      result.verdict = "COMMENT";
+    const result = ReviewResultSchema.safeParse(parsed);
+    if (!result.success) {
+      throw new ReviewError(
+        `Claude response failed validation: ${result.error.message}`,
+        raw,
+      );
     }
 
-    return result;
+    return result.data;
   }
 }

@@ -2,7 +2,7 @@
 
 A GitHub Action that reviews pull requests using Claude and posts inline comments via the GitHub Reviews API.
 
-**Tech:** Node.js 20 · TypeScript 5 · `@anthropic-ai/sdk` · `@octokit/rest`
+**Tech:** Node.js 20 · TypeScript 5 · `@anthropic-ai/sdk` · `@octokit/rest` · `zod`
 
 ## Setup
 
